@@ -4,6 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/ui/Logo";
 import { GalleryPasswordGate } from "@/components/galleries/GalleryPasswordGate";
 
+/**
+ * Constant-time string equality to avoid leaking password length / mismatch
+ * position via response timing. Both inputs are coerced to the same length
+ * by always iterating over the longer string.
+ */
 function timingSafeEqual(a: string, b: string): boolean {
   const len = Math.max(a.length, b.length);
   let mismatch = a.length === b.length ? 0 : 1;
@@ -28,46 +33,15 @@ interface WorkspaceMini {
   brand_color: string | null;
 }
 
-function GalleryShell({
-  title,
-  studio,
-  brandColor,
-  children,
+export async function generateMetadata({
+  params,
 }: {
-  title?: string;
-  studio?: string;
-  brandColor?: string | null;
-  children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
-  const tint = brandColor ?? "#047857";
-  return (
-    <div className="min-h-screen bg-canvas">
-      <header className="bg-surface border-b border-line">
-        <div className="max-w-5xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Logo size={26} tint={tint} />
-            <span className="text-sm font-semibold text-ink">
-              {studio ?? "Dunora"}
-            </span>
-          </div>
-          <span className="text-xs text-muted">
-            Powered by{" "}
-            <Link href="/" className="text-accent-deep hover:underline">
-              Dunora
-            </Link>
-          </span>
-        </div>
-      </header>
-      <main className="max-w-5xl mx-auto px-5 md:px-8 py-10 md:py-14">
-        {title && (
-          <h1 className="text-2xl md:text-4xl font-bold tracking-[-0.6px] text-ink mb-2">
-            {title}
-          </h1>
-        )}
-        {children}
-      </main>
-    </div>
-  );
+  const { slug } = await params;
+  return {
+    title: `Gallery · ${slug}`,
+  };
 }
 
 export default async function PublicGalleryPage({
@@ -75,39 +49,45 @@ export default async function PublicGalleryPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ pw?: string }>;
+  searchParams: Promise<{ key?: string }>;
 }) {
   const { slug } = await params;
-  const { pw } = await searchParams;
-
+  const { key: providedKey } = await searchParams;
   const supabase = await createClient();
 
-  const { data: galleryData } = await supabase
+  // Anon-readable lookup. RLS on the galleries table allows public select
+  // for visibility='public' and visibility='password'. Private galleries
+  // return null and 404 here.
+  const galleryRes = await supabase
     .from("galleries")
-    .select("id, title, slug, description, visibility, password, workspace_id")
+    .select(
+      "id, title, slug, description, visibility, password, workspace_id"
+    )
     .eq("slug", slug)
-    .is("deleted_at", null)
     .maybeSingle();
 
-  const gallery = galleryData as PublicGallery | null;
-  if (!gallery) notFound();
+  const gallery = galleryRes.data as PublicGallery | null;
+  if (!gallery || gallery.visibility === "private") notFound();
 
-  if (gallery.visibility === "private") notFound();
-
-  if (gallery.visibility === "password") {
-    const ok =
-      typeof pw === "string" &&
-      gallery.password !== null &&
-      timingSafeEqual(pw, gallery.password);
-    if (!ok) {
-      return (
-        <GalleryShell title={gallery.title}>
-          <GalleryPasswordGate slug={slug} hasError={typeof pw === "string"} />
-        </GalleryShell>
-      );
-    }
+  // Password gate. Uses a constant-time comparison to avoid leaking the
+  // password's character count via response timing. The password itself is
+  // still stored plaintext (MVP shortcut, documented). When we migrate to
+  // hashed passwords, replace this with a hash compare.
+  if (
+    gallery.visibility === "password" &&
+    gallery.password &&
+    !timingSafeEqual(providedKey ?? "", gallery.password)
+  ) {
+    return (
+      <GalleryShell title={gallery.title}>
+        <GalleryPasswordGate slug={gallery.slug} />
+      </GalleryShell>
+    );
   }
 
+  // Workspace branding fetch + view counter bump in parallel — neither
+  // depends on the other, and the view bump is fire-and-forget anyway.
+  // Migration 006 must be applied for increment_gallery_view to exist.
   const [wRes] = await Promise.all([
     supabase
       .from("workspaces")
@@ -124,20 +104,68 @@ export default async function PublicGalleryPage({
       studio={workspace?.name}
       brandColor={workspace?.brand_color ?? null}
     >
-      {gallery.description && (
-        <p className="text-ink-2 text-base leading-relaxed mb-8 max-w-2xl">
-          {gallery.description}
-        </p>
-      )}
-      <div className="bg-surface border border-line rounded-2xl p-10 md:p-16 text-center">
-        <div className="text-sm font-medium text-ink mb-1.5">
-          Photos are being prepared
+      <div className="max-w-[760px] mx-auto px-6 py-12 md:py-20 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-ink mb-3">
+          {gallery.title}
+        </h1>
+        {gallery.description && (
+          <p className="text-ink-2 max-w-prose mx-auto mb-10">
+            {gallery.description}
+          </p>
+        )}
+
+        <div className="bg-surface border border-line rounded-2xl p-10 mt-8">
+          <div className="w-14 h-14 rounded-2xl bg-accent-wash text-accent inline-flex items-center justify-center text-2xl mb-4">
+            ✦
+          </div>
+          <h2 className="text-lg font-semibold text-ink mb-2">
+            Photos are being prepared
+          </h2>
+          <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
+            Your studio is putting the final touches on this gallery.
+            You&apos;ll be able to view, favourite and download photos here
+            shortly.
+          </p>
         </div>
-        <p className="text-xs text-muted max-w-md mx-auto leading-relaxed">
-          The photo grid lands in the next release. The gallery itself is live —
-          your link is shareable.
+
+        <p className="text-xs text-muted mt-12">
+          Powered by{" "}
+          <Link
+            href="/"
+            className="font-semibold text-ink-2 hover:text-ink"
+          >
+            Dunora
+          </Link>
         </p>
       </div>
     </GalleryShell>
+  );
+}
+
+function GalleryShell({
+  children,
+  studio,
+  brandColor,
+}: {
+  children: React.ReactNode;
+  title: string;
+  studio?: string;
+  brandColor?: string | null;
+}) {
+  return (
+    <div
+      className="min-h-screen bg-bg flex flex-col"
+      style={brandColor ? { ["--accent" as string]: brandColor } : undefined}
+    >
+      <header className="border-b border-line bg-surface/60 backdrop-blur">
+        <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
+          <Logo size={28} />
+          {studio && (
+            <span className="text-sm font-medium text-ink-2">{studio}</span>
+          )}
+        </div>
+      </header>
+      <main className="flex-1 flex flex-col">{children}</main>
+    </div>
   );
 }
