@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteGallery } from "@/lib/actions/galleries";
@@ -69,7 +70,7 @@ export function GalleryDetailHeader({
               <Button variant="secondary" size="md" onClick={handleCopyLink}>
                 {copied ? "Copied!" : "Copy link"}
               </Button>
-              <a
+              <Link
                 href={`/g/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -77,7 +78,7 @@ export function GalleryDetailHeader({
                 <Button variant="secondary" size="md">
                   View public ↗
                 </Button>
-              </a>
+              </Link>
             </>
           )}
           {!confirming ? (
