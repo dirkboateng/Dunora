@@ -6,19 +6,12 @@ import { Logo } from "@/components/ui/Logo";
 export const metadata = {
   title: "Dunora — Coming soon",
   description:
-    "Dunora is a private platform for photographers building polished client galleries. We're getting ready to open up — check back soon.",
+    "Dunora is a private platform for photographers building polished client galleries. We are getting ready to open up — check back soon.",
 };
 
-/**
- * Under-construction landing page.
- *
- * Logged-in users skip the placeholder and land on /dashboard.
- * Anonymous visitors see a minimal "coming soon" message.
- *
- * The full marketing landing (Hero, Stats, Features, Pricing, FAQ etc.)
- * still exists in components/landing/ — restore it by re-importing those
- * components when ready to publicly launch.
- */
+const CONTACT_EMAIL = "dirk688@hotmail.nl";
+const BETA_SUBJECT = "Dunora beta access";
+
 export default async function HomePage() {
   const supabase = await createClient();
   const {
@@ -26,6 +19,10 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
 
   if (user) redirect("/dashboard");
+
+  const betaMailto =
+    "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(BETA_SUBJECT);
+  const contactMailto = "mailto:" + CONTACT_EMAIL;
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
@@ -54,13 +51,13 @@ export default async function HomePage() {
 
           <p className="text-lg md:text-xl text-ink-2 leading-relaxed mb-10 max-w-lg mx-auto">
             Dunora is being built for photographers who want polished, branded
-            galleries without the noise of bloated tools. We&apos;re opening
-            this up carefully and slowly — by invitation, for now.
+            galleries without the noise of bloated tools. We are opening this
+            up carefully and slowly — by invitation, for now.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
             
-              href="mailto:dirk688@hotmail.nl?subject=Dunora%20beta%20access"
+              href={betaMailto}
               className="inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white text-sm font-semibold px-5 py-3 rounded-xl transition-colors"
             >
               Request beta access
@@ -83,15 +80,14 @@ export default async function HomePage() {
 
       <footer className="border-t border-line">
         <div className="max-w-[1280px] mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted">
-          <div>© {new Date().getFullYear()} Dunora. All rights reserved.</div>
+          <div>
+            {"\u00A9 "}{new Date().getFullYear()} Dunora. All rights reserved.
+          </div>
           <div className="flex items-center gap-5">
             <Link href="/legal" className="hover:text-ink-2 transition-colors">
               Legal
             </Link>
-            
-              href="mailto:dirk688@hotmail.nl"
-              className="hover:text-ink-2 transition-colors"
-            >
+            <a href={contactMailto} className="hover:text-ink-2 transition-colors">
               Contact
             </a>
           </div>
