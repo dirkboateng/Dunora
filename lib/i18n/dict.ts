@@ -39,7 +39,7 @@ export const dict: Record<Locale, Strings> = {
   en: {
     signIn: "Sign in",
     underConstructionBanner: "Under construction · launching soon",
-    badge: "beta",
+    badge: "Private beta",
     headline: "Photos delivered like they deserve.",
     subhead:
       "Dunora is being built for everyone who delivers photos. Polished, branded galleries — without the noise of bloated tools. Opening carefully, by invitation.",
@@ -64,11 +64,11 @@ export const dict: Record<Locale, Strings> = {
   },
   nl: {
     signIn: "Inloggen",
-    underConstructionBanner: "binnenkort live",
-    badge: "beta",
+    underConstructionBanner: "In aanbouw · binnenkort live",
+    badge: "Private beta",
     headline: "Foto's leveren zoals ze verdienen.",
     subhead:
-      "Dunora is in ontwikkeling voor iedereen die foto's levert. Strakke, branded galerijen zonder de drukte van Onhandige  tools.",
+      "Dunora is in ontwikkeling voor iedereen die foto's levert. Strakke, branded galerijen — zonder de drukte van logge tools. We openen rustig, op uitnodiging.",
     ctaPrimary: "Beta-toegang aanvragen",
     ctaSecondary: "Al uitgenodigd? Inloggen",
     pillars: {
@@ -79,7 +79,7 @@ export const dict: Record<Locale, Strings> = {
     previewLabel: "Preview",
     previewCaption:
       "Een blik op hoe een afgeronde client-galerij eruitziet. Schoon, snel en helemaal in jouw branding.",
-    previewGalleryTitle: "Wedstrijddag",
+    previewGalleryTitle: "Match Day",
     previewGalleryMeta: "184 foto's · gisteren geleverd",
     audienceTitle: "Voor iedereen die foto's levert",
     audienceLead:
