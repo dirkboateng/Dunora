@@ -3,11 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/ui/Logo";
 import { GalleryPasswordGate } from "@/components/galleries/GalleryPasswordGate";
 
-/**
- * Constant-time string equality to avoid leaking password length / mismatch
- * position via response timing. Both inputs are coerced to the same length
- * by always iterating over the longer string.
- */
 function timingSafeEqual(a: string, b: string): boolean {
   const len = Math.max(a.length, b.length);
   let mismatch = a.length === b.length ? 0 : 1;
@@ -112,13 +107,36 @@ export default async function PublicGalleryPage({
     }
   }
 
-  // Workspace branding fetch + view counter bump in parallel — neither
-  // depends on the other, and the view bump is fire-and-forget anyway.
-  // Migration 006 must be applied for increment_gallery_view to exist.
   const [wRes] = await Promise.all([
     supabase
       .from("workspaces")
       .select("name, brand_color")
       .eq("id", gallery.workspace_id)
       .maybeSingle(),
-    supabase.rpc("increment_gallery_view" as n
+    supabase.rpc("increment_gallery_view" as never, { p_slug: gallery.slug } as never),
+  ]);
+  const workspace = wRes.data as WorkspaceMini | null;
+
+  return (
+    <GalleryShell
+      title={gallery.title}
+      studio={workspace?.name}
+      brandColor={workspace?.brand_color ?? null}
+    >
+      {gallery.description && (
+        <p className="text-ink-2 text-base leading-relaxed mb-8 max-w-2xl">
+          {gallery.description}
+        </p>
+      )}
+      <div className="bg-surface border border-line rounded-2xl p-10 md:p-16 text-center">
+        <div className="text-sm font-medium text-ink mb-1.5">
+          Photos are being prepared
+        </div>
+        <p className="text-xs text-muted max-w-md mx-auto leading-relaxed">
+          The photo grid lands in the next release. The gallery itself is live —
+          your link is shareable.
+        </p>
+      </div>
+    </GalleryShell>
+  );
+}
