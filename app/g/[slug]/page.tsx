@@ -4,11 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/ui/Logo";
 import { GalleryPasswordGate } from "@/components/galleries/GalleryPasswordGate";
 
-/**
- * Constant-time string equality to avoid leaking password length / mismatch
- * position via response timing. Both inputs are coerced to the same length
- * by always iterating over the longer string.
- */
 function timingSafeEqual(a: string, b: string): boolean {
   const len = Math.max(a.length, b.length);
   let mismatch = a.length === b.length ? 0 : 1;
@@ -33,6 +28,17 @@ interface WorkspaceMini {
   brand_color: string | null;
 }
 
+interface GalleryPhotoRow {
+  photo_id: string;
+  sort_order: number;
+}
+
+interface PhotoRow {
+  id: string;
+  storage_path: string;
+  file_name: string;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -55,9 +61,6 @@ export default async function PublicGalleryPage({
   const { key: providedKey } = await searchParams;
   const supabase = await createClient();
 
-  // Anon-readable lookup. RLS on the galleries table allows public select
-  // for visibility='public' and visibility='password'. Private galleries
-  // return null and 404 here.
   const galleryRes = await supabase
     .from("galleries")
     .select(
@@ -69,10 +72,6 @@ export default async function PublicGalleryPage({
   const gallery = galleryRes.data as PublicGallery | null;
   if (!gallery || gallery.visibility === "private") notFound();
 
-  // Password gate. Uses a constant-time comparison to avoid leaking the
-  // password's character count via response timing. The password itself is
-  // still stored plaintext (MVP shortcut, documented). When we migrate to
-  // hashed passwords, replace this with a hash compare.
   if (
     gallery.visibility === "password" &&
     gallery.password &&
@@ -85,18 +84,56 @@ export default async function PublicGalleryPage({
     );
   }
 
-  // Workspace branding fetch + view counter bump in parallel — neither
-  // depends on the other, and the view bump is fire-and-forget anyway.
-  // Migration 006 must be applied for increment_gallery_view to exist.
-  const [wRes] = await Promise.all([
+  // Parallel fetch: workspace branding, gallery photos, and view bump
+  const [wRes, gpRes] = await Promise.all([
     supabase
       .from("workspaces")
       .select("name, brand_color")
       .eq("id", gallery.workspace_id)
       .maybeSingle(),
+    supabase
+      .from("gallery_photos")
+      .select("photo_id, sort_order")
+      .eq("gallery_id", gallery.id)
+      .eq("is_hidden", false)
+      .order("sort_order", { ascending: true })
+      .limit(500),
     supabase.rpc("increment_gallery_view" as never, { p_slug: gallery.slug } as never),
   ]);
+
   const workspace = wRes.data as WorkspaceMini | null;
+  const galleryPhotos = (gpRes.data ?? []) as GalleryPhotoRow[];
+
+  // Fetch the actual photo records for the linked photos
+  let photos: PhotoRow[] = [];
+  const photoUrls: Record<string, string> = {};
+  if (galleryPhotos.length > 0) {
+    const photoIds = galleryPhotos.map((gp) => gp.photo_id);
+    const { data: photoData } = await supabase
+      .from("photos")
+      .select("id, storage_path, file_name")
+      .in("id", photoIds)
+      .is("deleted_at", null);
+
+    photos = (photoData ?? []) as PhotoRow[];
+
+    // Sort photos by sort_order from gallery_photos
+    const orderMap = new Map(galleryPhotos.map((gp) => [gp.photo_id, gp.sort_order]));
+    photos.sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
+
+    // Generate signed URLs (1 hour validity) for all photos in parallel
+    if (photos.length > 0) {
+      const paths = photos.map((p) => p.storage_path);
+      const { data: signedData } = await supabase.storage
+        .from("originals")
+        .createSignedUrls(paths, 3600);
+      if (signedData) {
+        signedData.forEach((s, i) => {
+          if (s.signedUrl) photoUrls[photos[i].id] = s.signedUrl;
+        });
+      }
+    }
+  }
 
   return (
     <GalleryShell
@@ -104,31 +141,64 @@ export default async function PublicGalleryPage({
       studio={workspace?.name}
       brandColor={workspace?.brand_color ?? null}
     >
-      <div className="max-w-[760px] mx-auto px-6 py-12 md:py-20 text-center">
+      <div className="max-w-[1280px] mx-auto px-5 md:px-8 py-10 md:py-14">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-ink mb-3">
           {gallery.title}
         </h1>
         {gallery.description && (
-          <p className="text-ink-2 max-w-prose mx-auto mb-10">
+          <p className="text-ink-2 max-w-prose mb-10">
             {gallery.description}
           </p>
         )}
 
-        <div className="bg-surface border border-line rounded-2xl p-10 mt-8">
-          <div className="w-14 h-14 rounded-2xl bg-accent-wash text-accent inline-flex items-center justify-center text-2xl mb-4">
-            ✦
+        {photos.length === 0 ? (
+          <div className="bg-surface border border-line rounded-2xl p-10 mt-8 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-accent-wash text-accent inline-flex items-center justify-center text-2xl mb-4">
+              ✦
+            </div>
+            <h2 className="text-lg font-semibold text-ink mb-2">
+              Photos are being prepared
+            </h2>
+            <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
+              Your studio is putting the final touches on this gallery.
+              You&apos;ll be able to view them here shortly.
+            </p>
           </div>
-          <h2 className="text-lg font-semibold text-ink mb-2">
-            Photos are being prepared
-          </h2>
-          <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
-            Your studio is putting the final touches on this gallery.
-            You&apos;ll be able to view, favourite and download photos here
-            shortly.
-          </p>
-        </div>
+        ) : (
+          <>
+            <p className="text-sm text-muted mb-6">
+              {photos.length} {photos.length === 1 ? "photo" : "photos"}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {photos.map((p) => {
+                const url = photoUrls[p.id];
+                return (
+                  <div
+                    key={p.id}
+                    className="aspect-[4/5] bg-surface-2 rounded-xl overflow-hidden border border-line group relative"
+                    title={p.file_name}
+                  >
+                    {url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={url}
+                        alt={p.file_name}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-muted">
+                        Loading…
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
 
-        <p className="text-xs text-muted mt-12">
+        <p className="text-xs text-muted mt-12 text-center">
           Powered by{" "}
           <Link
             href="/"
