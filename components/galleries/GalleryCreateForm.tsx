@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   createGallery,
@@ -28,16 +29,47 @@ export function GalleryCreateForm({
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState<GalleryVisibility>("private");
   const [password, setPassword] = useState("");
-  const [projectId, setProjectId] = useState(preselectProjectId ?? "");
+  const [projectId, setProjectId] = useState(
+    preselectProjectId ?? (projects[0]?.id ?? "")
+  );
 
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // Empty state — no projects exist yet, can't create a gallery
+  if (projects.length === 0) {
+    return (
+      <div className="bg-surface border border-line rounded-2xl p-8 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-accent-wash text-accent inline-flex items-center justify-center text-2xl mb-4">
+          📁
+        </div>
+        <h2 className="text-lg font-semibold text-ink mb-2">
+          Create a project first
+        </h2>
+        <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed mb-6">
+          Galleries are built from photos in a project. You&apos;ll need at
+          least one project before you can create a gallery to share with
+          clients.
+        </p>
+        <Link
+          href="/dashboard/projects/new"
+          className="inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+        >
+          Create project
+        </Link>
+      </div>
+    );
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setServerError(null);
     if (!title.trim()) {
       setServerError("Gallery title is required");
+      return;
+    }
+    if (!projectId) {
+      setServerError("Pick a project for this gallery");
       return;
     }
     if (visibility === "password" && !password.trim()) {
@@ -51,7 +83,7 @@ export function GalleryCreateForm({
       description: description.trim() || null,
       visibility,
       password: visibility === "password" ? password.trim() : null,
-      project_id: projectId || null,
+      project_id: projectId,
     });
 
     if (!result.ok || !result.data) {
@@ -95,6 +127,22 @@ export function GalleryCreateForm({
       </div>
 
       <Select
+        label="Project"
+        name="projectId"
+        value={projectId}
+        onChange={(e) => setProjectId(e.target.value)}
+        helper="Photos from this project will be added to the gallery automatically."
+        disabled={loading}
+        required
+      >
+        {projects.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
+        ))}
+      </Select>
+
+      <Select
         label="Visibility"
         name="visibility"
         value={visibility}
@@ -126,23 +174,6 @@ export function GalleryCreateForm({
           disabled={loading}
           required
         />
-      )}
-
-      {projects.length > 0 && (
-        <Select
-          label="Link to project (optional)"
-          name="projectId"
-          value={projectId}
-          onChange={(e) => setProjectId(e.target.value)}
-          disabled={loading}
-        >
-          <option value="">No project — standalone gallery</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </Select>
       )}
 
       {serverError && (
