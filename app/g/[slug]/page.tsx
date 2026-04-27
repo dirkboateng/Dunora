@@ -32,15 +32,46 @@ interface WorkspaceMini {
   brand_color: string | null;
 }
 
-export async function generateMetadata({
-  params,
+function GalleryShell({
+  title,
+  studio,
+  brandColor,
+  children,
 }: {
-  params: Promise<{ slug: string }>;
+  title?: string;
+  studio?: string;
+  brandColor?: string | null;
+  children: React.ReactNode;
 }) {
-  const { slug } = await params;
-  return {
-    title: `Gallery · ${slug}`,
-  };
+  const tint = brandColor ?? "#047857";
+  return (
+    <div className="min-h-screen bg-canvas">
+      <header className="bg-surface border-b border-line">
+        <div className="max-w-5xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Logo size={26} tint={tint} />
+            <span className="text-sm font-semibold text-ink">
+              {studio ?? "Dunora"}
+            </span>
+          </div>
+          <span className="text-xs text-muted">
+            Powered by{" "}
+            <a href="/" className="text-accent-deep hover:underline">
+              Dunora
+            </a>
+          </span>
+        </div>
+      </header>
+      <main className="max-w-5xl mx-auto px-5 md:px-8 py-10 md:py-14">
+        {title && (
+          <h1 className="text-2xl md:text-4xl font-bold tracking-[-0.6px] text-ink mb-2">
+            {title}
+          </h1>
+        )}
+        {children}
+      </main>
+    </div>
+  );
 }
 
 export default async function PublicGalleryPage({
@@ -48,123 +79,46 @@ export default async function PublicGalleryPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ key?: string }>;
+  searchParams: Promise<{ pw?: string }>;
 }) {
   const { slug } = await params;
-  const { key: providedKey } = await searchParams;
+  const { pw } = await searchParams;
+
   const supabase = await createClient();
 
-  // Anon-readable lookup. RLS on the galleries table allows public select
-  // for visibility='public' and visibility='password'. Private galleries
-  // return null and 404 here.
-  const galleryRes = await supabase
+  const { data: galleryData } = await supabase
     .from("galleries")
-    .select(
-      "id, title, slug, description, visibility, password, workspace_id"
-    )
+    .select("id, title, slug, description, visibility, password, workspace_id")
     .eq("slug", slug)
+    .is("deleted_at", null)
     .maybeSingle();
 
-  const gallery = galleryRes.data as PublicGallery | null;
-  if (!gallery || gallery.visibility === "private") notFound();
+  const gallery = galleryData as PublicGallery | null;
+  if (!gallery) notFound();
 
-  // Password gate. Uses a constant-time comparison to avoid leaking the
-  // password's character count via response timing. The password itself is
-  // still stored plaintext (MVP shortcut, documented). When we migrate to
-  // hashed passwords, replace this with a hash compare.
-  if (
-    gallery.visibility === "password" &&
-    gallery.password &&
-    !timingSafeEqual(providedKey ?? "", gallery.password)
-  ) {
-    return (
-      <GalleryShell title={gallery.title}>
-        <GalleryPasswordGate slug={gallery.slug} />
-      </GalleryShell>
-    );
+  if (gallery.visibility === "private") notFound();
+
+  if (gallery.visibility === "password") {
+    const ok =
+      typeof pw === "string" &&
+      gallery.password !== null &&
+      timingSafeEqual(pw, gallery.password);
+    if (!ok) {
+      return (
+        <GalleryShell title={gallery.title}>
+          <GalleryPasswordGate slug={slug} hasError={typeof pw === "string"} />
+        </GalleryShell>
+      );
+    }
   }
 
   // Workspace branding fetch + view counter bump in parallel — neither
   // depends on the other, and the view bump is fire-and-forget anyway.
-  // Migration 006 must be applied for supabase.rpc("increment_gallery_view" as never, { p_slug: gallery.slug } as never), to exist.
+  // Migration 006 must be applied for increment_gallery_view to exist.
   const [wRes] = await Promise.all([
     supabase
       .from("workspaces")
       .select("name, brand_color")
       .eq("id", gallery.workspace_id)
       .maybeSingle(),
-    supabase.rpc("increment_gallery_view", { p_slug: gallery.slug }),
-  ]);
-  const workspace = wRes.data as WorkspaceMini | null;
-
-  return (
-    <GalleryShell
-      title={gallery.title}
-      studio={workspace?.name}
-      brandColor={workspace?.brand_color ?? null}
-    >
-      <div className="max-w-[760px] mx-auto px-6 py-12 md:py-20 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-ink mb-3">
-          {gallery.title}
-        </h1>
-        {gallery.description && (
-          <p className="text-ink-2 max-w-prose mx-auto mb-10">
-            {gallery.description}
-          </p>
-        )}
-
-        <div className="bg-surface border border-line rounded-2xl p-10 mt-8">
-          <div className="w-14 h-14 rounded-2xl bg-accent-wash text-accent inline-flex items-center justify-center text-2xl mb-4">
-            ✦
-          </div>
-          <h2 className="text-lg font-semibold text-ink mb-2">
-            Photos are being prepared
-          </h2>
-          <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
-            Your studio is putting the final touches on this gallery.
-            You&apos;ll be able to view, favourite and download photos here
-            shortly.
-          </p>
-        </div>
-
-        <p className="text-xs text-muted mt-12">
-          Powered by{" "}
-          <a
-            href="https://dunora.app"
-            className="font-semibold text-ink-2 hover:text-ink"
-          >
-            Dunora
-          </a>
-        </p>
-      </div>
-    </GalleryShell>
-  );
-}
-
-function GalleryShell({
-  children,
-  studio,
-  brandColor,
-}: {
-  children: React.ReactNode;
-  title: string;
-  studio?: string;
-  brandColor?: string | null;
-}) {
-  return (
-    <div
-      className="min-h-screen bg-bg flex flex-col"
-      style={brandColor ? { ["--accent" as string]: brandColor } : undefined}
-    >
-      <header className="border-b border-line bg-surface/60 backdrop-blur">
-        <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
-          <Logo size={28} />
-          {studio && (
-            <span className="text-sm font-medium text-ink-2">{studio}</span>
-          )}
-        </div>
-      </header>
-      <main className="flex-1 flex flex-col">{children}</main>
-    </div>
-  );
-}
+    supabase.rpc("increment_gallery_view" as n
