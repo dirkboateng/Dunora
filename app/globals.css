@@ -1,0 +1,61 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Dunora design tokens as CSS custom properties.
+ * Mirrors tailwind.config.ts and lib/tokens.ts.
+ * Use Tailwind classes by default; reach for var(--token) for inline styles
+ * (SVG fills, dynamic colors).
+ */
+@layer base {
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --surface-2: #F4F4EE;
+    --surface-3: #ECECE4;
+
+    --accent: #047857;
+    --accent-hover: #065F46;
+    --accent-deep: #064E3B;
+    --accent-bright: #10B981;
+    --accent-soft: #D1FAE5;
+    --accent-wash: #ECFDF5;
+
+    --ink: #0F172A;
+    --ink-2: #334155;
+    --muted: #64748B;
+    --muted-2: #94A3B8;
+
+    --line: rgba(15, 23, 42, 0.07);
+    --line-strong: rgba(15, 23, 42, 0.12);
+
+    --success: #047857;
+    --warning: #D97706;
+    --error: #DC2626;
+    --info: #0284C7;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Native focus rings replaced with our accent ring */
+  *:focus-visible {
+    @apply outline-none ring-4 ring-accent/15 border-accent;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply max-w-[1200px] mx-auto px-6 md:px-8;
+  }
+}
