@@ -86,7 +86,7 @@ export default async function PublicGalleryPage({
 
   // Workspace branding fetch + view counter bump in parallel — neither
   // depends on the other, and the view bump is fire-and-forget anyway.
-  // Migration 006 must be applied for increment_gallery_view to exist.
+  // Migration 006 must be applied for supabase.rpc("increment_gallery_view" as never, { p_slug: gallery.slug } as never), to exist.
   const [wRes] = await Promise.all([
     supabase
       .from("workspaces")
