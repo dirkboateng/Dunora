@@ -13,13 +13,13 @@ export const metadata = {
 
 const CONTACT_EMAIL = "dirk688@hotmail.nl";
 
-const PREVIEW_PHOTOS = [
-  "https://source.unsplash.com/featured/400x500/?soccer,action,1",
-  "https://source.unsplash.com/featured/400x500/?football,player,2",
-  "https://source.unsplash.com/featured/400x500/?soccer,match,3",
-  "https://source.unsplash.com/featured/400x500/?football,goal,4",
-  "https://source.unsplash.com/featured/400x500/?soccer,stadium,5",
-  "https://source.unsplash.com/featured/400x500/?football,sport,6",
+const PREVIEW_TILES = [
+  { from: "from-emerald-200", via: "via-emerald-300", to: "to-teal-400", icon: "⚽" },
+  { from: "from-amber-200", via: "via-orange-300", to: "to-red-400", icon: "🏃" },
+  { from: "from-sky-200", via: "via-blue-300", to: "to-indigo-400", icon: "🥅" },
+  { from: "from-rose-200", via: "via-pink-300", to: "to-fuchsia-400", icon: "⚽" },
+  { from: "from-lime-200", via: "via-green-300", to: "to-emerald-500", icon: "🏆" },
+  { from: "from-orange-200", via: "via-amber-300", to: "to-yellow-400", icon: "👟" },
 ];
 
 export default async function HomePage() {
@@ -152,9 +152,13 @@ function PreviewMock({ previewLabel, galleryTitle, galleryMeta }: { previewLabel
         <div className="text-xl font-bold text-ink mb-1">{galleryTitle}</div>
         <div className="text-xs text-muted mb-5">{galleryMeta}</div>
         <div className="grid grid-cols-3 gap-2">
-          {PREVIEW_PHOTOS.map((src, i) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={i} src={src} alt="" className="aspect-[4/5] w-full object-cover rounded-lg bg-surface-2" loading="lazy" />
+          {PREVIEW_TILES.map((tile, i) => (
+            <div
+              key={i}
+              className={`aspect-[4/5] rounded-lg bg-gradient-to-br ${tile.from} ${tile.via} ${tile.to} flex items-center justify-center text-3xl shadow-inner`}
+            >
+              <span className="opacity-80 drop-shadow-sm">{tile.icon}</span>
+            </div>
           ))}
         </div>
       </div>
