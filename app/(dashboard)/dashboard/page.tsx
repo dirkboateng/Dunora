@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getDashboardData, formatBytes } from "@/lib/dashboard/get-dashboard-data";
 import { Topbar } from "@/components/dashboard/Topbar";
@@ -174,12 +175,12 @@ export default async function DashboardPage() {
                   Recent projects
                 </h2>
                 {recentProjects.length > 0 && (
-                  <a
+                  <Link
                     href="/dashboard/projects"
                     className="text-xs font-medium text-accent-deep hover:text-accent transition-colors"
                   >
                     View all →
-                  </a>
+                  </Link>
                 )}
               </div>
               {recentProjects.length === 0 ? (
@@ -191,7 +192,7 @@ export default async function DashboardPage() {
               ) : (
                 <div className="bg-surface border border-line rounded-2xl divide-y divide-line">
                   {recentProjects.map((p) => (
-                    <a
+                    <Link
                       key={p.id}
                       href={`/dashboard/projects/${p.id}`}
                       className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-surface-2 transition-colors first:rounded-t-2xl last:rounded-b-2xl"
@@ -207,7 +208,7 @@ export default async function DashboardPage() {
                       <span className="text-[10px] font-semibold uppercase tracking-wider bg-accent-wash text-accent-deep px-2 py-0.5 rounded-full">
                         {p.status}
                       </span>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -220,12 +221,12 @@ export default async function DashboardPage() {
                   Recent galleries
                 </h2>
                 {recentGalleries.length > 0 && (
-                  <a
+                  <Link
                     href="/dashboard/galleries"
                     className="text-xs font-medium text-accent-deep hover:text-accent transition-colors"
                   >
                     View all →
-                  </a>
+                  </Link>
                 )}
               </div>
               {recentGalleries.length === 0 ? (
@@ -237,7 +238,7 @@ export default async function DashboardPage() {
               ) : (
                 <div className="bg-surface border border-line rounded-2xl divide-y divide-line">
                   {recentGalleries.map((g) => (
-                    <a
+                    <Link
                       key={g.id}
                       href={`/dashboard/galleries/${g.id}`}
                       className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-surface-2 transition-colors first:rounded-t-2xl last:rounded-b-2xl"
@@ -253,7 +254,7 @@ export default async function DashboardPage() {
                       <span className="text-[10px] font-semibold uppercase tracking-wider bg-surface-2 text-ink-2 px-2 py-0.5 rounded-full">
                         {g.visibility}
                       </span>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}
