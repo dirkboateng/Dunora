@@ -39,10 +39,10 @@ export const dict: Record<Locale, Strings> = {
   en: {
     signIn: "Sign in",
     underConstructionBanner: "Under construction · launching soon",
-    badge: "Private beta",
+    badge: "beta",
     headline: "Photos delivered like they deserve.",
     subhead:
-      "Dunora is being built for anyone who needs to deliver polished, branded photo galleries without the noise of bloated tools. We are opening this up carefully, by invitation, for now.",
+      "Dunora is being built for everyone who delivers photos. Polished, branded galleries — without the noise of bloated tools. Opening carefully, by invitation.",
     ctaPrimary: "Request beta access",
     ctaSecondary: "Already invited? Sign in",
     pillars: {
@@ -64,11 +64,11 @@ export const dict: Record<Locale, Strings> = {
   },
   nl: {
     signIn: "Inloggen",
-    underConstructionBanner: "In aanbouw · binnenkort live",
-    badge: "Private beta",
+    underConstructionBanner: "binnenkort live",
+    badge: "beta",
     headline: "Foto's leveren zoals ze verdienen.",
     subhead:
-      "Dunora is in ontwikkeling voor iedereen die strakke, branded foto-galerijen wil leveren zonder de drukte van logge tools. We openen het rustig, op uitnodiging.",
+      "Dunora is in ontwikkeling voor iedereen die foto's levert. Strakke, branded galerijen zonder de drukte van Onhandige  tools.",
     ctaPrimary: "Beta-toegang aanvragen",
     ctaSecondary: "Al uitgenodigd? Inloggen",
     pillars: {
