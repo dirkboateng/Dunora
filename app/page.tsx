@@ -1,32 +1,23 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Header } from "@/components/landing/Header";
-import { Hero } from "@/components/landing/Hero";
-import { Stats } from "@/components/landing/Stats";
-import { Features } from "@/components/landing/Features";
-import { Workflow } from "@/components/landing/Workflow";
-import { UseCases } from "@/components/landing/UseCases";
-import { Pricing } from "@/components/landing/Pricing";
-import { Roadmap } from "@/components/landing/Roadmap";
-import { Faq } from "@/components/landing/Faq";
-import { Cta } from "@/components/landing/Cta";
-import { Footer } from "@/components/landing/Footer";
+import { Logo } from "@/components/ui/Logo";
 
 export const metadata = {
-  title: "Dunora — AI-powered photo delivery",
+  title: "Dunora — Coming soon",
   description:
-    "Upload once. Deliver smarter. Dunora helps photographers and clubs deliver branded galleries to their clients in minutes, not hours.",
+    "Dunora is a private platform for photographers building polished client galleries. We're getting ready to open up — check back soon.",
 };
 
 /**
- * Marketing landing page.
+ * Under-construction landing page.
  *
- * Server component end-to-end — every section ships as plain HTML.
- * Total client JS budget for this route: 0 KB beyond Next's framework
- * baseline. The FAQ accordion uses native <details>/<summary>; pricing,
- * roadmap and features are static.
+ * Logged-in users skip the placeholder and land on /dashboard.
+ * Anonymous visitors see a minimal "coming soon" message.
  *
- * Logged-in users skip the marketing pitch entirely and land on /dashboard.
+ * The full marketing landing (Hero, Stats, Features, Pricing, FAQ etc.)
+ * still exists in components/landing/ — restore it by re-importing those
+ * components when ready to publicly launch.
  */
 export default async function HomePage() {
   const supabase = await createClient();
@@ -37,20 +28,84 @@ export default async function HomePage() {
   if (user) redirect("/dashboard");
 
   return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-        <Stats />
-        <Features />
-        <Workflow />
-        <UseCases />
-        <Pricing />
-        <Roadmap />
-        <Faq />
-        <Cta />
+    <div className="min-h-screen bg-bg flex flex-col">
+      <header className="border-b border-line bg-surface/60 backdrop-blur">
+        <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
+          <Logo size={28} />
+          <Link
+            href="/login"
+            className="text-sm font-medium text-ink-2 hover:text-ink transition-colors"
+          >
+            Sign in
+          </Link>
+        </div>
+      </header>
+
+      <main className="flex-1 flex items-center justify-center px-6 py-20">
+        <div className="max-w-xl text-center">
+          <div className="inline-flex items-center gap-2 bg-accent-wash text-accent-deep text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            In private beta
+          </div>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-1px] text-ink mb-6 leading-[1.05]">
+            A quieter way to deliver photos.
+          </h1>
+
+          <p className="text-lg md:text-xl text-ink-2 leading-relaxed mb-10 max-w-lg mx-auto">
+            Dunora is being built for photographers who want polished, branded
+            galleries without the noise of bloated tools. We&apos;re opening
+            this up carefully and slowly — by invitation, for now.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+            
+              href="mailto:dirk688@hotmail.nl?subject=Dunora%20beta%20access"
+              className="inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white text-sm font-semibold px-5 py-3 rounded-xl transition-colors"
+            >
+              Request beta access
+            </a>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center text-sm font-semibold text-ink-2 hover:text-ink px-5 py-3 rounded-xl hover:bg-surface-2 transition-colors"
+            >
+              Already invited? Sign in
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 max-w-md mx-auto pt-10 border-t border-line">
+            <Pillar title="Branded" caption="Your studio, your style." />
+            <Pillar title="Fast" caption="Drag-drop uploads. No fuss." />
+            <Pillar title="Private" caption="Password-gated by default." />
+          </div>
+        </div>
       </main>
-      <Footer />
-    </>
+
+      <footer className="border-t border-line">
+        <div className="max-w-[1280px] mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted">
+          <div>© {new Date().getFullYear()} Dunora. All rights reserved.</div>
+          <div className="flex items-center gap-5">
+            <Link href="/legal" className="hover:text-ink-2 transition-colors">
+              Legal
+            </Link>
+            
+              href="mailto:dirk688@hotmail.nl"
+              className="hover:text-ink-2 transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function Pillar({ title, caption }: { title: string; caption: string }) {
+  return (
+    <div>
+      <div className="text-sm font-semibold text-ink mb-1">{title}</div>
+      <div className="text-xs text-muted leading-snug">{caption}</div>
+    </div>
   );
 }
