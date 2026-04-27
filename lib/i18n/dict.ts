@@ -40,7 +40,7 @@ export const dict: Record<Locale, Strings> = {
     signIn: "Sign in",
     underConstructionBanner: "Under construction · launching soon",
     badge: "Private beta",
-    headline: "A quieter way to deliver photos.",
+    headline: "Photos delivered like they deserve.",
     subhead:
       "Dunora is being built for anyone who needs to deliver polished, branded photo galleries without the noise of bloated tools. We are opening this up carefully, by invitation, for now.",
     ctaPrimary: "Request beta access",
@@ -53,11 +53,11 @@ export const dict: Record<Locale, Strings> = {
     previewLabel: "Preview",
     previewCaption:
       "A glimpse of how a finished client gallery looks. Clean, fast, and entirely in your branding.",
-    previewGalleryTitle: "Summer Wedding",
-    previewGalleryMeta: "128 photos · delivered yesterday",
+    previewGalleryTitle: "Match Day",
+    previewGalleryMeta: "184 photos · delivered yesterday",
     audienceTitle: "Built for everyone who delivers photos",
     audienceLead:
-      "Whatever you shoot and whoever you deliver to — Dunora gets out of your way and lets your work speak for itself.",
+      "If photos matter to your work, Dunora makes delivering them feel as good as taking them.",
     footerLegal: "Legal",
     footerContact: "Contact",
     footerRights: "All rights reserved.",
@@ -66,7 +66,7 @@ export const dict: Record<Locale, Strings> = {
     signIn: "Inloggen",
     underConstructionBanner: "In aanbouw · binnenkort live",
     badge: "Private beta",
-    headline: "Een rustigere manier om foto's te leveren.",
+    headline: "Foto's leveren zoals ze verdienen.",
     subhead:
       "Dunora is in ontwikkeling voor iedereen die strakke, branded foto-galerijen wil leveren zonder de drukte van logge tools. We openen het rustig, op uitnodiging.",
     ctaPrimary: "Beta-toegang aanvragen",
@@ -79,11 +79,11 @@ export const dict: Record<Locale, Strings> = {
     previewLabel: "Preview",
     previewCaption:
       "Een blik op hoe een afgeronde client-galerij eruitziet. Schoon, snel en helemaal in jouw branding.",
-    previewGalleryTitle: "Zomerbruiloft",
-    previewGalleryMeta: "128 foto's · gisteren geleverd",
+    previewGalleryTitle: "Wedstrijddag",
+    previewGalleryMeta: "184 foto's · gisteren geleverd",
     audienceTitle: "Voor iedereen die foto's levert",
     audienceLead:
-      "Wat je ook fotografeert en aan wie je ook levert — Dunora gaat uit je weg en laat je werk voor zich spreken.",
+      "Als foto's belangrijk zijn voor je werk, voelt het leveren ervan met Dunora net zo goed als het maken.",
     footerLegal: "Voorwaarden",
     footerContact: "Contact",
     footerRights: "Alle rechten voorbehouden.",
