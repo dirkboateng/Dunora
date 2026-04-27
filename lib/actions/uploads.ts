@@ -123,7 +123,7 @@ export async function registerUploadedPhoto(
     mime_type: input.mime_type,
     width: input.width ?? null,
     height: input.height ?? null,
-    status: "ready",
+    status: "uploaded",
   });
 
   if (error) return { ok: false, error: error.message };
