@@ -14,12 +14,12 @@ export const metadata = {
 const CONTACT_EMAIL = "dirk688@hotmail.nl";
 
 const PREVIEW_PHOTOS = [
-  "https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1602674809970-a2dde4d09c0d?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1577223625816-7546f13df25d?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?auto=format&fit=crop&w=400&q=70",
+  "https://source.unsplash.com/featured/400x500/?soccer,action,1",
+  "https://source.unsplash.com/featured/400x500/?football,player,2",
+  "https://source.unsplash.com/featured/400x500/?soccer,match,3",
+  "https://source.unsplash.com/featured/400x500/?football,goal,4",
+  "https://source.unsplash.com/featured/400x500/?soccer,stadium,5",
+  "https://source.unsplash.com/featured/400x500/?football,sport,6",
 ];
 
 export default async function HomePage() {
@@ -51,6 +51,7 @@ export default async function HomePage() {
           </div>
         </div>
       </header>
+
       <main className="flex-1">
         <section className="px-6 py-16 md:py-20">
           <div className="max-w-[1280px] mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -75,11 +76,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="relative">
-              <PreviewMock
-                previewLabel={t.previewLabel}
-                galleryTitle={t.previewGalleryTitle}
-                galleryMeta={t.previewGalleryMeta}
-              />
+              <PreviewMock previewLabel={t.previewLabel} galleryTitle={t.previewGalleryTitle} galleryMeta={t.previewGalleryMeta} />
               <p className="text-xs text-muted text-center mt-4 max-w-md mx-auto leading-relaxed">
                 {t.previewCaption}
               </p>
@@ -132,15 +129,7 @@ function Pillar({ title, caption }: { title: string; caption: string }) {
   );
 }
 
-function PreviewMock({
-  previewLabel,
-  galleryTitle,
-  galleryMeta,
-}: {
-  previewLabel: string;
-  galleryTitle: string;
-  galleryMeta: string;
-}) {
+function PreviewMock({ previewLabel, galleryTitle, galleryMeta }: { previewLabel: string; galleryTitle: string; galleryMeta: string }) {
   return (
     <div className="bg-surface border border-line rounded-2xl shadow-xl overflow-hidden">
       <div className="bg-surface-2 border-b border-line px-4 py-2.5 flex items-center gap-2">
@@ -165,13 +154,7 @@ function PreviewMock({
         <div className="grid grid-cols-3 gap-2">
           {PREVIEW_PHOTOS.map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={i}
-              src={src}
-              alt=""
-              className="aspect-[4/5] w-full object-cover rounded-lg bg-surface-2"
-              loading="lazy"
-            />
+            <img key={i} src={src} alt="" className="aspect-[4/5] w-full object-cover rounded-lg bg-surface-2" loading="lazy" />
           ))}
         </div>
       </div>
