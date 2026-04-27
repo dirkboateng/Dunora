@@ -12,7 +12,7 @@ export interface CreateGalleryInput {
   description?: string | null;
   visibility: GalleryVisibility;
   password?: string | null;
-  project_id?: string | null;
+  project_id: string;
 }
 
 export interface ActionResult {
@@ -31,6 +31,12 @@ export async function createGallery(
   if (trimmedTitle.length > 200) {
     return { ok: false, error: "Gallery title is too long (max 200 chars)" };
   }
+  if (!input.project_id) {
+    return {
+      ok: false,
+      error: "Pick a project for this gallery so we know which photos to include.",
+    };
+  }
   if ((input.description?.trim().length ?? 0) > 5000) {
     return { ok: false, error: "Description is too long (max 5000 chars)" };
   }
@@ -48,14 +54,24 @@ export async function createGallery(
   const workspaceId = await getCurrentWorkspaceId();
   const slug = slugifyWithSuffix(trimmedTitle);
 
-  // Note: in production, hash the password. For MVP we store plaintext
-  // to keep the surface small — this is documented in the gallery view
-  // and will be migrated before public launch.
+  // Defense-in-depth: confirm the project belongs to this workspace
+  const projectCheck = await supabase
+    .from("projects")
+    .select("id")
+    .eq("id", input.project_id)
+    .eq("workspace_id", workspaceId)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (!projectCheck.data) {
+    return { ok: false, error: "Selected project not found in this workspace" };
+  }
+
   const insertRes = await supabase
     .from("galleries")
     .insert({
       workspace_id: workspaceId,
-      project_id: input.project_id || null,
+      project_id: input.project_id,
       title: trimmedTitle,
       slug,
       description: input.description?.trim() || null,
@@ -112,7 +128,6 @@ export async function updateGallery(
   }
   if (input.visibility !== undefined) {
     updates.visibility = input.visibility;
-    // When changing visibility, reset password unless explicitly provided
     if (input.visibility === "password") {
       const pw = input.password?.trim() ?? "";
       if (!pw) {
