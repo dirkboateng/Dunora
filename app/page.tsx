@@ -13,6 +13,17 @@ export const metadata = {
 
 const CONTACT_EMAIL = "dirk688@hotmail.nl";
 
+// Curated demo photos for the preview mock — Unsplash, royalty-free
+// These are real photos showing the kind of imagery a customer would see
+const PREVIEW_PHOTOS = [
+  "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=400&q=70",
+];
+
 export default async function HomePage() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
@@ -27,7 +38,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
-      <div className="bg-amber-50 border-b border-amber-200 text-amber-900 text-xs font-semibold tracking-wide text-center py-2 px-4 uppercase">
+      <div className="bg-accent-wash border-b border-accent/20 text-accent-deep text-xs font-semibold tracking-wide text-center py-2 px-4 uppercase">
         🔧 {t.underConstructionBanner}
       </div>
 
@@ -67,7 +78,11 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="relative">
-              <PreviewMock previewLabel={t.previewLabel} />
+              <PreviewMock
+                previewLabel={t.previewLabel}
+                galleryTitle={t.previewGalleryTitle}
+                galleryMeta={t.previewGalleryMeta}
+              />
               <p className="text-xs text-muted text-center mt-4 max-w-md mx-auto leading-relaxed">
                 {t.previewCaption}
               </p>
@@ -76,18 +91,13 @@ export default async function HomePage() {
         </section>
 
         <section className="px-6 py-16 md:py-20 border-t border-line bg-surface/40">
-          <div className="max-w-[1280px] mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-[-0.5px] text-ink text-center mb-10 max-w-2xl mx-auto">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-[-0.5px] text-ink mb-4">
               {t.audienceTitle}
             </h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {t.audiences.map((a, i) => (
-                <div key={i} className="bg-surface border border-line rounded-2xl p-5">
-                  <div className="text-sm font-semibold text-ink mb-1.5">{a.title}</div>
-                  <div className="text-xs text-ink-2 leading-relaxed">{a.caption}</div>
-                </div>
-              ))}
-            </div>
+            <p className="text-base text-ink-2 leading-relaxed">
+              {t.audienceLead}
+            </p>
           </div>
         </section>
 
@@ -125,7 +135,15 @@ function Pillar({ title, caption }: { title: string; caption: string }) {
   );
 }
 
-function PreviewMock({ previewLabel }: { previewLabel: string }) {
+function PreviewMock({
+  previewLabel,
+  galleryTitle,
+  galleryMeta,
+}: {
+  previewLabel: string;
+  galleryTitle: string;
+  galleryMeta: string;
+}) {
   return (
     <div className="bg-surface border border-line rounded-2xl shadow-xl overflow-hidden">
       <div className="bg-surface-2 border-b border-line px-4 py-2.5 flex items-center gap-2">
@@ -145,21 +163,21 @@ function PreviewMock({ previewLabel }: { previewLabel: string }) {
           </div>
           <div className="text-[10px] text-muted">Powered by Dunora</div>
         </div>
-        <div className="text-xl font-bold text-ink mb-1">Summer Wedding</div>
-        <div className="text-xs text-muted mb-5">128 photos · delivered yesterday</div>
+        <div className="text-xl font-bold text-ink mb-1">{galleryTitle}</div>
+        <div className="text-xs text-muted mb-5">{galleryMeta}</div>
         <div className="grid grid-cols-3 gap-2">
-          <MockTile from="from-amber-100" to="to-rose-100" />
-          <MockTile from="from-emerald-100" to="to-teal-100" />
-          <MockTile from="from-sky-100" to="to-indigo-100" />
-          <MockTile from="from-rose-100" to="to-amber-100" />
-          <MockTile from="from-teal-100" to="to-emerald-100" />
-          <MockTile from="from-indigo-100" to="to-sky-100" />
+          {PREVIEW_PHOTOS.map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={i}
+              src={src}
+              alt=""
+              className="aspect-[4/5] w-full object-cover rounded-lg bg-surface-2"
+              loading="lazy"
+            />
+          ))}
         </div>
       </div>
     </div>
   );
-}
-
-function MockTile({ from, to }: { from: string; to: string }) {
-  return <div className={`aspect-[4/5] rounded-lg bg-gradient-to-br ${from} ${to}`} />;
 }
