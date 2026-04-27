@@ -11,30 +11,32 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   nl: "NL",
 };
 
+interface FeatureRow {
+  title: string;
+  body: string;
+}
+
 interface Strings {
   signIn: string;
-  underConstructionBanner: string;
+  underConstruction: string;
   badge: string;
   headline: string;
   subhead: string;
   ctaPrimary: string;
   ctaSecondary: string;
-  manifesto: string;
-  manifestoSignature: string;
+  scrollHint: string;
+  forWhomEyebrow: string;
+  forWhomTitle: string;
+  forWhomLead: string;
+  features: FeatureRow[];
   previewLabel: string;
-  previewTitle: string;
-  previewCaption: string;
-  previewGalleryTitle: string;
-  previewGalleryMeta: string;
-  audienceTitle: string;
-  audienceLead: string;
-  pillars: {
-    branded: { title: string; caption: string };
-    fast: { title: string; caption: string };
-    private: { title: string; caption: string };
-  };
-  ctaStripTitle: string;
-  ctaStripBody: string;
+  previewGallery: string;
+  previewMeta: string;
+  previewBy: string;
+  closingEyebrow: string;
+  closingTitle: string;
+  closingBody: string;
+  closingCta: string;
   footerLegal: string;
   footerContact: string;
   footerRights: string;
@@ -43,84 +45,82 @@ interface Strings {
 export const dict: Record<Locale, Strings> = {
   en: {
     signIn: "Sign in",
-    underConstructionBanner: "Under construction · launching soon",
+    underConstruction: "Under construction · launching soon",
     badge: "Private beta",
-    headline: "Photos delivered like they deserve.",
+    headline: "Photos, finally delivered with care.",
     subhead:
-      "Dunora is being built for everyone who delivers photos. Polished, branded galleries — without the noise of bloated tools. Opening carefully, by invitation.",
+      "Dunora is a calm, branded delivery platform for the people who actually deliver photos. Built slowly, opened by invitation, and made to disappear behind your work.",
     ctaPrimary: "Request beta access",
-    ctaSecondary: "Already invited? Sign in",
-    manifesto:
-      "Photography is craft. Delivery should not be where that craft gets lost.",
-    manifestoSignature: "The Dunora team",
-    previewLabel: "A glimpse",
-    previewTitle: "What your client sees.",
-    previewCaption:
-      "A clean gallery in your branding. No clutter, no third-party banners, no friction. Your work in front, the rest out of the way.",
-    previewGalleryTitle: "Match Day",
-    previewGalleryMeta: "184 photos · delivered yesterday",
-    audienceTitle: "Built around the work, not the workflow.",
-    audienceLead:
-      "Whether you shoot one match a year or fifty weddings a season — Dunora gets out of the way and lets the photos do the work.",
-    pillars: {
-      branded: {
-        title: "Yours, end to end",
-        caption: "Your studio name, your colors, your domain. Clients never see ours.",
+    ctaSecondary: "Sign in",
+    scrollHint: "More below",
+    forWhomEyebrow: "Who it is for",
+    forWhomTitle: "Made for everyone whose work deserves better delivery.",
+    forWhomLead:
+      "Whether the photos are yours or you commission them, Dunora gets out of the way and lets the work do the talking. No clutter, no bloat, no compromise on how it looks when it lands.",
+    features: [
+      {
+        title: "Branded by default",
+        body: "Every gallery wears your name, your colour, your tone. Clients land on something that looks like you, not us.",
       },
-      fast: {
-        title: "Built for speed",
-        caption: "Drag, drop, share. Resumable uploads up to 200 MB per file.",
+      {
+        title: "Calm by design",
+        body: "No popups, no upsells, no busy interface. The photos lead. Everything else gets out of the way.",
       },
-      private: {
+      {
         title: "Private by default",
-        caption: "Galleries are password-gated until you decide otherwise.",
+        body: "Galleries are password-gated, links are unguessable, and visibility is yours to set. Nothing public unless you decide.",
       },
-    },
-    ctaStripTitle: "Want in?",
-    ctaStripBody:
-      "Send a short note. Tell us what you shoot and we'll get back to you about beta access.",
-    footerLegal: "Legal",
+    ],
+    previewLabel: "Preview",
+    previewGallery: "Match Day",
+    previewMeta: "184 photos · delivered yesterday",
+    previewBy: "Powered by Dunora",
+    closingEyebrow: "Coming soon",
+    closingTitle: "We are building this carefully.",
+    closingBody:
+      "Right now Dunora is in private beta. If you want to be among the first to use it for your delivery, send us a message and tell us a little about your work.",
+    closingCta: "Get in touch",
+    footerLegal: "Terms",
     footerContact: "Contact",
     footerRights: "All rights reserved.",
   },
   nl: {
     signIn: "Inloggen",
-    underConstructionBanner: "In aanbouw · binnenkort live",
+    underConstruction: "In aanbouw · binnenkort live",
     badge: "Private beta",
-    headline: "Foto's geleverd zoals ze verdienen.",
+    headline: "Foto's, eindelijk netjes geleverd.",
     subhead:
-      "Dunora wordt gebouwd voor iedereen die foto's levert. Strakke, branded galerijen — zonder de ruis van zware tools. We openen langzaam, op uitnodiging.",
+      "Dunora is een rustig leveringsplatform met jouw eigen merk voor mensen die foto's écht leveren. Langzaam gebouwd, op uitnodiging geopend, en gemaakt om achter jouw werk te verdwijnen.",
     ctaPrimary: "Beta-toegang aanvragen",
-    ctaSecondary: "Al uitgenodigd? Inloggen",
-    manifesto:
-      "Fotografie is een vak. De levering mag niet zijn waar dat vak verloren gaat.",
-    manifestoSignature: "Het Dunora team",
-    previewLabel: "Een blik",
-    previewTitle: "Wat jouw klant ziet.",
-    previewCaption:
-      "Een opgeruimde galerij in jouw branding. Geen rommel, geen reclamebanners van derden, geen wrijving. Jouw werk vooraan, de rest opzij.",
-    previewGalleryTitle: "Match Day",
-    previewGalleryMeta: "184 foto's · gisteren geleverd",
-    audienceTitle: "Gebouwd rond het werk, niet rond de tool.",
-    audienceLead:
-      "Of je nu één wedstrijd per jaar fotografeert of vijftig bruiloften per seizoen — Dunora stapt opzij en laat de foto's hun werk doen.",
-    pillars: {
-      branded: {
-        title: "Helemaal van jou",
-        caption: "Jouw studio, jouw kleuren, jouw domein. De klant ziet ons niet.",
+    ctaSecondary: "Inloggen",
+    scrollHint: "Meer hieronder",
+    forWhomEyebrow: "Voor wie",
+    forWhomTitle: "Voor iedereen wiens werk een betere levering verdient.",
+    forWhomLead:
+      "Of je nu zelf de foto's maakt of ze laat maken, Dunora gaat uit de weg en laat het werk spreken. Geen rommel, geen overbodige knoppen, geen concessies aan hoe het oogt als de klant 'm opent.",
+    features: [
+      {
+        title: "Jouw merk, niet het onze",
+        body: "Elke galerij draagt jouw naam, kleur en stijl. Je klant komt aan op iets dat eruitziet als jouw werk, niet als ons platform.",
       },
-      fast: {
-        title: "Gemaakt voor snelheid",
-        caption: "Sleep, plaats, deel. Hervatbare uploads tot 200 MB per bestand.",
+      {
+        title: "Rustig ontwerp",
+        body: "Geen pop-ups, geen reclame, geen drukke interface. De foto's nemen de leiding. De rest gaat uit de weg.",
       },
-      private: {
+      {
         title: "Standaard privé",
-        caption: "Galerijen zijn afgeschermd met wachtwoord tot jij anders beslist.",
+        body: "Galerijen zijn met wachtwoord beveiligd, links zijn niet te raden, en jij bepaalt wat openbaar is. Niks gaat naar buiten zonder dat jij dat zegt.",
       },
-    },
-    ctaStripTitle: "Mee doen?",
-    ctaStripBody:
-      "Stuur een kort bericht. Vertel wat je fotografeert en we komen bij je terug over beta-toegang.",
+    ],
+    previewLabel: "Voorbeeld",
+    previewGallery: "Match Day",
+    previewMeta: "184 foto's · gisteren geleverd",
+    previewBy: "Mogelijk gemaakt door Dunora",
+    closingEyebrow: "Binnenkort",
+    closingTitle: "We bouwen dit met zorg.",
+    closingBody:
+      "Op dit moment is Dunora in private beta. Wil je tot de eersten behoren die het inzetten voor hun eigen levering, stuur ons een bericht en vertel kort iets over je werk.",
+    closingCta: "Neem contact op",
     footerLegal: "Voorwaarden",
     footerContact: "Contact",
     footerRights: "Alle rechten voorbehouden.",
