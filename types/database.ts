@@ -167,6 +167,7 @@ export type Database = {
           deleted_at: Timestamp | null;
         };
         Insert: {
+          id?: UUID;
           workspace_id: UUID;
           project_id: UUID;
           storage_path: string;
