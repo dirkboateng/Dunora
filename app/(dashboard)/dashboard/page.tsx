@@ -132,9 +132,16 @@ export default async function DashboardPage() {
               <QuickActionCard
                 icon={<UploadIcon size={20} />}
                 title="Upload photos"
-                description="Coming next — resumable uploads up to 200 MB per file."
-                href="/dashboard/uploads"
-                disabled
+                description={
+                  recentProjects.length > 0
+                    ? `Drag-drop to ${recentProjects[0].name} or pick another.`
+                    : "Create a project first, then upload photos to it."
+                }
+                href={
+                  recentProjects.length > 0
+                    ? `/dashboard/projects/${recentProjects[0].id}/upload`
+                    : "/dashboard/projects/new"
+                }
               />
               <QuickActionCard
                 icon={<GalleryIcon size={20} />}
