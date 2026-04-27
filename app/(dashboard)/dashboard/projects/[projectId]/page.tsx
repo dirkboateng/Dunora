@@ -28,6 +28,15 @@ interface Project {
   created_at: string;
 }
 
+interface PhotoRow {
+  id: string;
+  storage_path: string;
+  file_name: string;
+  file_size_bytes: number;
+  mime_type: string;
+  created_at: string;
+}
+
 const TYPE_LABELS: Record<string, string> = {
   football_match: "Football match",
   event: "Event",
@@ -46,7 +55,7 @@ export default async function ProjectDetailPage({
   const ctx = await getDashboardContext();
   const supabase = await createClient();
 
-  const [projectRes, galleriesRes] = await Promise.all([
+  const [projectRes, galleriesRes, photosRes] = await Promise.all([
     supabase
       .from("projects")
       .select(
@@ -63,6 +72,14 @@ export default async function ProjectDetailPage({
       .eq("workspace_id", ctx.workspaceId)
       .order("created_at", { ascending: false })
       .limit(20),
+    supabase
+      .from("photos")
+      .select("id, storage_path, file_name, file_size_bytes, mime_type, created_at")
+      .eq("project_id", projectId)
+      .eq("workspace_id", ctx.workspaceId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(60),
   ]);
 
   const project = projectRes.data as Project | null;
@@ -75,6 +92,22 @@ export default async function ProjectDetailPage({
     visibility: string;
     view_count: number;
   }[];
+
+  const photos = (photosRes.data ?? []) as PhotoRow[];
+
+  // Generate signed URLs (1 hour validity) for all photos in parallel
+  const photoUrls: Record<string, string> = {};
+  if (photos.length > 0) {
+    const paths = photos.map((p) => p.storage_path);
+    const { data: signedData } = await supabase.storage
+      .from("originals")
+      .createSignedUrls(paths, 3600);
+    if (signedData) {
+      signedData.forEach((s, i) => {
+        if (s.signedUrl) photoUrls[photos[i].id] = s.signedUrl;
+      });
+    }
+  }
 
   const shootDate = project.shoot_date
     ? new Date(project.shoot_date).toLocaleDateString("en-GB", {
@@ -121,7 +154,7 @@ export default async function ProjectDetailPage({
 
       <div className="flex items-center gap-1 mb-6 border-b border-line">
         <Tab icon={<FolderIcon size={14} />} label="Overview" active />
-        <Tab icon={<PhotoIcon size={14} />} label="Photos" />
+        <Tab icon={<PhotoIcon size={14} />} label={`Photos (${photos.length})`} />
         <Tab icon={<UploadIcon size={14} />} label="Upload" />
         <Tab icon={<GalleryIcon size={14} />} label="Gallery" />
         <Tab icon={<SettingsIcon size={14} />} label="Settings" />
@@ -142,11 +175,55 @@ export default async function ProjectDetailPage({
             )}
           </div>
 
-          <EmptyState
-            icon={<UploadIcon size={22} />}
-            title="No photos uploaded yet"
-            description="Use the Upload photos button above to add your first batch."
-          />
+          <div>
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="text-base font-semibold text-ink">
+                Photos
+              </h2>
+              {photos.length > 0 && (
+                <Link
+                  href={`/dashboard/projects/${project.id}/upload`}
+                  className="text-sm font-medium text-accent-deep hover:text-accent transition-colors"
+                >
+                  + Add more
+                </Link>
+              )}
+            </div>
+            {photos.length === 0 ? (
+              <EmptyState
+                icon={<UploadIcon size={22} />}
+                title="No photos uploaded yet"
+                description="Use the Upload photos button above to add your first batch."
+              />
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                {photos.map((p) => {
+                  const url = photoUrls[p.id];
+                  return (
+                    <div
+                      key={p.id}
+                      className="aspect-square bg-surface-2 rounded-lg overflow-hidden border border-line group relative"
+                      title={p.file_name}
+                    >
+                      {url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={url}
+                          alt={p.file_name}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-muted">
+                          {p.mime_type.split("/")[1]?.toUpperCase() ?? "IMG"}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           <div>
             <div className="flex items-baseline justify-between mb-3">
@@ -201,6 +278,7 @@ export default async function ProjectDetailPage({
           />
           <SidePill label="Client" value={project.client_name ?? "—"} />
           <SidePill label="Shoot date" value={shootDate} />
+          <SidePill label="Photos" value={String(photos.length)} />
           <SidePill
             label="Created"
             value={new Date(project.created_at).toLocaleDateString("en-GB", {
