@@ -46,9 +46,6 @@ export default async function ProjectDetailPage({
   const ctx = await getDashboardContext();
   const supabase = await createClient();
 
-  // Fetch project + linked galleries in parallel — both can use projectId from
-  // the URL directly. If the project doesn't belong to this workspace, the
-  // .eq("workspace_id") below filters it out and notFound() is returned.
   const [projectRes, galleriesRes] = await Promise.all([
     supabase
       .from("projects")
@@ -106,6 +103,13 @@ export default async function ProjectDetailPage({
         </Link>
         <div className="flex items-center gap-2">
           <Link
+            href={`/dashboard/projects/${project.id}/upload`}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold bg-accent hover:bg-accent-hover text-white px-3.5 py-1.5 rounded-lg transition-colors"
+          >
+            <UploadIcon size={14} />
+            Upload photos
+          </Link>
+          <Link
             href={`/dashboard/projects/${project.id}/edit`}
             className="text-sm font-medium text-ink-2 hover:text-ink px-3 py-1.5 rounded-lg hover:bg-surface-2 transition-colors"
           >
@@ -115,7 +119,6 @@ export default async function ProjectDetailPage({
         </div>
       </div>
 
-      {/* Tab nav (visual only for MVP) */}
       <div className="flex items-center gap-1 mb-6 border-b border-line">
         <Tab icon={<FolderIcon size={14} />} label="Overview" active />
         <Tab icon={<PhotoIcon size={14} />} label="Photos" />
@@ -142,7 +145,7 @@ export default async function ProjectDetailPage({
           <EmptyState
             icon={<UploadIcon size={22} />}
             title="No photos uploaded yet"
-            description="Photo upload, AI enhancement and watermarking ship in Step 10. For now you can prepare the project and create galleries."
+            description="Use the Upload photos button above to add your first batch."
           />
 
           <div>
