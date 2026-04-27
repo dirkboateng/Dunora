@@ -19,35 +19,21 @@ export const metadata = {
   title: "Dashboard",
 };
 
-/**
- * Step 8 — real dashboard.
- *
- * Server Component end-to-end. All data fetching is server-side and respects
- * RLS. If a user has no workspace (signup trigger missed them), the
- * getDashboardData() helper self-heals via the ensure_workspace RPC.
- *
- * If the user hasn't completed onboarding yet, redirect them to /onboarding.
- */
 export default async function DashboardPage() {
   const data = await getDashboardData();
   const { profile, workspace, email, stats, selfHealed, recentProjects, recentGalleries } = data;
 
-  // Funnel new users through the onboarding wizard.
-  // Existing users (onboarding_completed_at is set) stay here.
   if (profile && !profile.onboarding_completed_at) {
     redirect("/onboarding");
   }
 
-  // Friendly first name for the welcome
   const firstName =
     profile?.full_name?.split(" ")[0] ?? email.split("@")[0] ?? "there";
 
-  // Time-of-day greeting (server time — close enough for a greeting)
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  // Storage progress
   const storagePct = workspace
     ? Math.min(
         (workspace.storage_used_bytes / workspace.storage_quota_bytes) * 100,
@@ -64,7 +50,6 @@ export default async function DashboardPage() {
       />
 
       <main className="flex-1 px-5 md:px-8 py-8 max-w-[1280px] w-full">
-        {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold tracking-[-0.6px] text-ink">
             {greeting}, {firstName}
@@ -74,7 +59,6 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Self-heal notice (only shown the first time the RPC ran) */}
         {selfHealed && (
           <div className="mb-6 bg-accent-wash border border-accent/20 rounded-xl px-4 py-3 flex items-start gap-3">
             <SparkleIcon size={18} className="text-accent shrink-0 mt-0.5" />
@@ -90,7 +74,6 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Workspace missing (RPC also failed — exceptional path) */}
         {!workspace && (
           <div className="mb-8">
             <EmptyState
@@ -101,7 +84,6 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Stats grid */}
         {workspace && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
             <StatCard
@@ -131,7 +113,6 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Quick actions */}
         {workspace && (
           <section className="mb-10">
             <div className="flex items-baseline justify-between mb-4">
@@ -165,10 +146,8 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* Two-column lower section */}
         {workspace && (
           <div className="grid lg:grid-cols-2 gap-4 md:gap-5">
-            {/* Recent projects */}
             <section>
               <div className="flex items-baseline justify-between mb-4">
                 <h2 className="text-base font-semibold text-ink">
@@ -214,7 +193,6 @@ export default async function DashboardPage() {
               )}
             </section>
 
-            {/* Recent galleries */}
             <section>
               <div className="flex items-baseline justify-between mb-4">
                 <h2 className="text-base font-semibold text-ink">
