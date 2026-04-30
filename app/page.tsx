@@ -119,4 +119,57 @@ export default async function HomePage() {
       </main>
 
       <footer className="border-t border-line/60 bg-surface/40">
-        <div className="max-w-[1200px] mx-auto px-6 py-8 flex flex-col sm:flex-row items-center ju
+        <div className="max-w-[1200px] mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
+          <div className="flex items-center gap-3">
+            <Logo size={20} />
+            <span>{`\u00A9 ${year} Dunora. ${t.footerRights}`}</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <Link href="/legal" className="hover:text-ink-2 transition-colors">{t.footerLegal}</Link>
+            <a href={contactMailto} className="hover:text-ink-2 transition-colors">{t.footerContact}</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function PreviewMock({ previewLabel, galleryName, meta, poweredBy }: { previewLabel: string; galleryName: string; meta: string; poweredBy: string }) {
+  return (
+    <div className="relative">
+      <div aria-hidden className="absolute -inset-4 bg-gradient-to-br from-emerald-200/40 via-transparent to-amber-200/30 rounded-3xl blur-2xl -z-10" />
+      <div className="bg-surface border border-line/80 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="bg-surface-2 border-b border-line px-4 py-3 flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-300" />
+          <div className="ml-3 flex-1 bg-surface rounded-md px-3 py-1.5 text-[11px] text-muted font-mono truncate">dunora.app/g/match-day</div>
+          <span className="text-[10px] font-semibold text-muted uppercase tracking-[0.15em]">{previewLabel}</span>
+        </div>
+        <div className="px-7 py-7 bg-bg">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-md bg-accent" />
+              <div className="text-sm font-bold text-ink tracking-tight">Studio</div>
+            </div>
+            <div className="text-[10px] text-muted font-medium">{poweredBy}</div>
+          </div>
+          <div className="text-2xl font-bold text-ink mb-1 tracking-[-0.5px]">{galleryName}</div>
+          <div className="text-xs text-muted mb-6">{meta}</div>
+          <div className="grid grid-cols-3 gap-2.5">
+            {PREVIEW_PHOTOS.map((src, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={i}
+                src={src}
+                alt=""
+                className="aspect-[4/5] w-full object-cover rounded-lg bg-surface-2"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
