@@ -35,7 +35,7 @@ const primaryNav: NavItem[] = [
 
 const secondaryNav: NavItem[] = [
   { label: "Site", href: "/dashboard/site", icon: SettingsIcon },
-  { label: "Presets", href: "/dashboard/presets", icon: PresetIcon
+  { label: "Presets", href: "/dashboard/presets", icon: PresetIcon},
   { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon, comingSoon: true },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
