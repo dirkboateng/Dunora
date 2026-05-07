@@ -29,14 +29,14 @@ interface NavItem {
 const primaryNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { label: "Projects", href: "/dashboard/projects", icon: FolderIcon },
-  { label: "Uploads", href: "/dashboard/uploads", icon: UploadIcon, comingSoon: true },
+  { label: "Uploads", href: "/dashboard/uploads", icon: UploadIcon },
   { label: "Galleries", href: "/dashboard/galleries", icon: GalleryIcon },
 ];
 
 const secondaryNav: NavItem[] = [
   { label: "Site", href: "/dashboard/site", icon: SettingsIcon },
   { label: "Presets", href: "/dashboard/presets", icon: PresetIcon },
-  { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon, comingSoon: true },
+  { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
 
