@@ -2,11 +2,26 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardContext } from "@/lib/dashboard/get-dashboard-context";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { PresetsManager, type Preset } from "@/components/presets/PresetsManager";
+import { PresetsLibrary, type LibraryPreset } from "@/components/photo/PresetsLibrary";
 
-export const metadata = {
-  title: "Presets",
-};
+export const metadata = { title: "Presets" };
+
+const FALLBACK_PREVIEW =
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=85";
+
+interface PresetRow {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  tags: string[] | null;
+  is_favorite: boolean;
+  adjustments: Record<string, number> | null;
+}
+
+interface LandingPhotoRow {
+  storage_path: string;
+}
 
 export default async function PresetsPage() {
   const ctx = await getDashboardContext();
@@ -14,14 +29,37 @@ export default async function PresetsPage() {
 
   const supabase = await createClient();
 
+  const { data: landingPhoto } = await supabase
+    .from("landing_photos")
+    .select("storage_path")
+    .order("slot", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  let previewImageUrl = FALLBACK_PREVIEW;
+  const lp = landingPhoto as LandingPhotoRow | null;
+  if (lp?.storage_path) {
+    const { data: pub } = supabase.storage.from("landing").getPublicUrl(lp.storage_path);
+    if (pub.publicUrl) previewImageUrl = pub.publicUrl;
+  }
+
   const { data: rows } = await supabase
-    .from("gallery_presets")
-    .select("id, name, description, default_visibility, default_brand_color, default_watermark_id, is_default")
+    .from("presets")
+    .select("id, name, description, category, tags, is_favorite, adjustments")
     .eq("workspace_id", ctx.workspaceId)
-    .order("is_default", { ascending: false })
+    .order("is_favorite", { ascending: false })
     .order("created_at", { ascending: false });
 
-  const presets = (rows ?? []) as Preset[];
+  const raw = (rows ?? []) as PresetRow[];
+  const presets: LibraryPreset[] = raw.map((p) => ({
+    id: p.id,
+    name: p.name,
+    description: p.description ?? "",
+    category: p.category ?? "custom",
+    tags: p.tags ?? [],
+    is_favorite: p.is_favorite,
+    adjustments: (p.adjustments ?? {}) as LibraryPreset["adjustments"],
+  }));
 
   return (
     <DashboardShell
@@ -29,9 +67,9 @@ export default async function PresetsPage() {
       email={ctx.email}
       role={ctx.role}
       title="Presets"
-      description="Reusable templates for new galleries. Set defaults once, apply them on every shoot."
+      description="Lightroom-style adjustments. Build a look once, apply it across galleries with one click."
     >
-      <PresetsManager presets={presets} />
+      <PresetsLibrary presets={presets} previewImageUrl={previewImageUrl} />
     </DashboardShell>
   );
 }
