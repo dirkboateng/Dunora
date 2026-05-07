@@ -13,14 +13,10 @@ export const metadata = {
 
 const CONTACT_EMAIL = "dirk688@hotmail.nl";
 
-const PREVIEW_PHOTOS = [
-  "/voetbal-1.jpg",
-  "/voetbal-2.jpg",
-  "/voetbal-3.jpg",
-  "/voetbal-4.jpg",
-  "/voetbal-5.jpg",
-  "/voetbal-6.jpg",
-];
+interface LandingPhotoRow {
+  slot: number;
+  storage_path: string;
+}
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -32,6 +28,20 @@ export default async function HomePage() {
   const betaMailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Dunora beta access")}`;
   const contactMailto = `mailto:${CONTACT_EMAIL}`;
   const year = new Date().getFullYear();
+
+  const { data: photoRows } = await supabase
+    .from("landing_photos")
+    .select("slot, storage_path")
+    .order("slot", { ascending: true });
+
+  const rows = (photoRows ?? []) as LandingPhotoRow[];
+  const photoUrls: (string | null)[] = [null, null, null, null, null, null];
+  for (const row of rows) {
+    if (row.slot >= 1 && row.slot <= 6) {
+      const { data: pub } = supabase.storage.from("landing").getPublicUrl(row.storage_path);
+      photoUrls[row.slot - 1] = pub.publicUrl;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
@@ -74,7 +84,7 @@ export default async function HomePage() {
               </div>
 
               <div className="lg:col-span-6">
-                <PreviewMock previewLabel={t.previewLabel} galleryName={t.previewGallery} meta={t.previewMeta} poweredBy={t.previewBy} />
+                <PreviewMock previewLabel={t.previewLabel} galleryName={t.previewGallery} meta={t.previewMeta} poweredBy={t.previewBy} photoUrls={photoUrls} />
               </div>
             </div>
           </div>
@@ -134,7 +144,7 @@ export default async function HomePage() {
   );
 }
 
-function PreviewMock({ previewLabel, galleryName, meta, poweredBy }: { previewLabel: string; galleryName: string; meta: string; poweredBy: string }) {
+function PreviewMock({ previewLabel, galleryName, meta, poweredBy, photoUrls }: { previewLabel: string; galleryName: string; meta: string; poweredBy: string; photoUrls: (string | null)[] }) {
   return (
     <div className="relative">
       <div aria-hidden className="absolute -inset-4 bg-gradient-to-br from-emerald-200/40 via-transparent to-amber-200/30 rounded-3xl blur-2xl -z-10" />
@@ -157,16 +167,26 @@ function PreviewMock({ previewLabel, galleryName, meta, poweredBy }: { previewLa
           <div className="text-2xl font-bold text-ink mb-1 tracking-[-0.5px]">{galleryName}</div>
           <div className="text-xs text-muted mb-6">{meta}</div>
           <div className="grid grid-cols-3 gap-2.5">
-            {PREVIEW_PHOTOS.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={src}
-                alt=""
-                className="aspect-[4/5] w-full object-cover rounded-lg bg-surface-2"
-                loading="lazy"
-              />
-            ))}
+            {[0, 1, 2, 3, 4, 5].map((i) => {
+              const url = photoUrls[i];
+              return url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src={url}
+                  alt=""
+                  className="aspect-[4/5] w-full object-cover rounded-lg bg-surface-2"
+                  loading="lazy"
+                />
+              ) : (
+                <div
+                  key={i}
+                  className="aspect-[4/5] w-full rounded-lg bg-gradient-to-br from-accent-wash via-surface-2 to-emerald-100 flex items-center justify-center text-[10px] text-muted font-mono"
+                >
+                  Slot {i + 1}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
