@@ -33,8 +33,7 @@ const primaryNav: NavItem[] = [
   { label: "Galleries", href: "/dashboard/galleries", icon: GalleryIcon },
 ];
 
-const const secondaryNav: NavItem[] = [   { label: "Site", href: "/dashboard/site", icon: SettingsIcon },   { label: "Presets", href: "/dashboard/presets", icon: PresetIcon, comingSoon: true },   { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon, comingSoon: true },   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon }, ];
-  { label: "Presets", href: "/dashboard/presets", icon: PresetIcon, comingSoon: true },
+const secondaryNav: NavItem[] = [   { label: "Site", href: "/dashboard/site", icon: SettingsIcon },   { label: "Presets", href: "/dashboard/presets", icon: PresetIcon, comingSoon: true },   { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon, comingSoon: true },   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon }, ];  { label: "Presets", href: "/dashboard/presets", icon: PresetIcon, comingSoon: true },
   { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon, comingSoon: true },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
