@@ -33,7 +33,9 @@ const primaryNav: NavItem[] = [
   { label: "Galleries", href: "/dashboard/galleries", icon: GalleryIcon },
 ];
 
-const secondaryNav: NavItem[] = [   { label: "Site", href: "/dashboard/site", icon: SettingsIcon },   { label: "Presets", href: "/dashboard/presets", icon: PresetIcon, comingSoon: true },   { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon, comingSoon: true },   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon }, ];  { label: "Presets", href: "/dashboard/presets", icon: PresetIcon, comingSoon: true },
+const secondaryNav: NavItem[] = [
+  { label: "Site", href: "/dashboard/site", icon: SettingsIcon },
+  { label: "Presets", href: "/dashboard/presets", icon: PresetIcon, comingSoon: true },
   { label: "Watermarks", href: "/dashboard/watermarks", icon: WatermarkIcon, comingSoon: true },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
@@ -58,20 +60,17 @@ export function Sidebar({ storageUsed = 0, storageQuota = 10737418240 }: Sidebar
 
   return (
     <aside className="hidden lg:flex flex-col w-[240px] shrink-0 h-screen sticky top-0 border-r border-line bg-surface">
-      {/* Logo */}
       <div className="px-5 py-5 border-b border-line">
         <Link href="/dashboard" className="inline-flex">
           <Logo size={28} />
         </Link>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         <NavGroup label="Workspace" items={primaryNav} pathname={pathname} />
         <NavGroup label="Library" items={secondaryNav} pathname={pathname} className="mt-6" />
       </nav>
 
-      {/* Storage usage */}
       <div className="px-5 py-4 border-t border-line">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
